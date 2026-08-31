@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
 import { useAuth } from '../context/AuthContext'
+import { LogoMark } from '../components/Logo'
 
 export function Login() {
   const { ingresar, registrarse } = useAuth()
@@ -34,9 +35,7 @@ export function Login() {
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       >
         <div className="mb-9">
-          <span className="mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-marca text-lg font-bold text-white shadow-lift">
-            SyN
-          </span>
+          <LogoMark size={68} className="mb-4" />
           <h1 className="text-[1.9rem] leading-tight">
             El stock de casa y la lista del super, para los dos.
           </h1>

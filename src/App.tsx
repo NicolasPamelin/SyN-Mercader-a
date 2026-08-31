@@ -4,6 +4,7 @@ import { useAuth } from './context/AuthContext'
 import { DespensaProvider, useDespensa } from './context/DespensaContext'
 import { ToastProvider } from './components/ui/Toast'
 import { AppShell } from './components/AppShell'
+import { LogoMark } from './components/Logo'
 import { Login } from './pages/Login'
 import { Onboarding } from './pages/Onboarding'
 import { Stock } from './pages/Stock'
@@ -51,10 +52,8 @@ function ConHogar() {
 function Splash() {
   return (
     <div className="grid min-h-[100svh] place-items-center">
-      <div className="flex flex-col items-center gap-3">
-        <span className="grid h-12 w-12 animate-[syn-fade-up_0.4s_ease] place-items-center rounded-2xl bg-marca text-sm font-bold text-white">
-          SyN
-        </span>
+      <div className="flex animate-[syn-fade-up_0.4s_ease] flex-col items-center gap-3">
+        <LogoMark size={56} />
         <span className="text-xs text-ink-faint">Cargando tu despensa…</span>
       </div>
     </div>

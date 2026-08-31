@@ -2,6 +2,7 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useDespensa } from '../context/DespensaContext'
 import { IconAjustes, IconCarrito, IconDespensa } from './iconos'
+import { LogoMark } from './Logo'
 import { spring } from '../lib/ui'
 
 const tabs = [
@@ -19,12 +20,12 @@ export function AppShell() {
   return (
     <div className="mx-auto flex min-h-[100svh] max-w-md flex-col">
       <header className="safe-top sticky top-0 z-20 border-b border-line bg-bg/85 backdrop-blur-md">
-        <div className="flex items-center gap-2.5 px-5 py-3">
-          <span className="grid h-8 w-8 place-items-center rounded-[0.6rem] bg-marca text-[13px] font-bold tracking-tight text-white">
-            SyN
-          </span>
+        <div className="flex items-center gap-2.5 px-5 py-2.5">
+          <LogoMark size={34} />
           <div className="leading-tight">
-            <p className="font-display text-[15px] font-semibold">Mercadería</p>
+            <p className="font-display text-[15px] font-semibold tracking-tight">
+              SyN <span className="text-ink-soft">Mercadería</span>
+            </p>
             <p className="text-[11px] text-ink-faint">{hogar?.nombre}</p>
           </div>
         </div>

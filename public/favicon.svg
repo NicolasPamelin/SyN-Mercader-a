@@ -1,6 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#0f766e"/>
-  <text x="50%" y="50%" dy=".07em" text-anchor="middle" dominant-baseline="middle"
-        font-family="Inter, Segoe UI, system-ui, sans-serif" font-size="190" font-weight="800" fill="#ffffff">SyN</text>
-  <rect x="150" y="366" width="212" height="24" rx="12" fill="#5eead4"/>
+  <rect width="512" height="512" rx="116" fill="#0f766e" />
+  <path d="M146 208 256 126l110 82" fill="none" stroke="#ffffff" stroke-width="22"
+        stroke-linecap="round" stroke-linejoin="round" />
+  <text x="256" y="374" text-anchor="middle"
+        font-family="Fraunces, Georgia, 'Times New Roman', serif"
+        font-weight="600" font-size="194" letter-spacing="-4" fill="#ffffff">SyN</text>
 </svg>

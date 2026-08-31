@@ -91,7 +91,11 @@ export function Stock() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              onClick={() => setModal({ abierto: true, prod: null })}
+              onClick={() => {
+                // cerrar el teclado para ver el panel completo
+                ;(document.activeElement as HTMLElement | null)?.blur()
+                setModal({ abierto: true, prod: null })
+              }}
               className="mt-2 flex w-full items-center gap-2 rounded-xl border border-dashed border-marca px-3 py-2.5 text-sm font-semibold text-marca-ink"
             >
               <IconMas width={16} height={16} />

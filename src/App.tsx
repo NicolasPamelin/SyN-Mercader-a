@@ -4,6 +4,7 @@ import { useAuth } from './context/AuthContext'
 import { DespensaProvider, useDespensa } from './context/DespensaContext'
 import { ToastProvider } from './components/ui/Toast'
 import { AppShell } from './components/AppShell'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { LogoMark } from './components/Logo'
 import { Login } from './pages/Login'
 import { Onboarding } from './pages/Onboarding'
@@ -15,13 +16,15 @@ function App() {
   if (!supabaseConfigurado) return <FaltaConfig />
 
   return (
-    <ToastProvider>
-      <AuthGate>
-        <DespensaProvider>
-          <ConHogar />
-        </DespensaProvider>
-      </AuthGate>
-    </ToastProvider>
+    <ErrorBoundary>
+      <ToastProvider>
+        <AuthGate>
+          <DespensaProvider>
+            <ConHogar />
+          </DespensaProvider>
+        </AuthGate>
+      </ToastProvider>
+    </ErrorBoundary>
   )
 }
 

@@ -1,9 +1,22 @@
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { useState } from 'react'
+import { NavLink, useLocation, useOutlet } from 'react-router-dom'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useDespensa } from '../context/DespensaContext'
 import { IconAjustes, IconCarrito, IconDespensa } from './iconos'
 import { LogoMark } from './Logo'
 import { spring } from '../lib/ui'
+
+/**
+ * Congela el contenido de la ruta al montarse. Sin esto, con
+ * <AnimatePresence mode="wait"> el <Outlet> de la página que sale ya muestra
+ * la página nueva, y quedan dos instancias iguales a la vez (layoutId
+ * duplicado -> la pantalla queda en blanco hasta refrescar).
+ */
+function RutaCongelada() {
+  const outlet = useOutlet()
+  const [congelado] = useState(outlet)
+  return congelado
+}
 
 const tabs = [
   { to: '/', label: 'Despensa', Icon: IconDespensa, end: true },
@@ -31,7 +44,7 @@ export function AppShell() {
         </div>
       </header>
 
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="wait" initial={false}>
         <motion.main
           key={location.pathname}
           initial={reduce ? false : { opacity: 0, y: 8 }}
@@ -40,7 +53,7 @@ export function AppShell() {
           transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
           className="flex-1 px-5 pb-28 pt-5"
         >
-          <Outlet />
+          <RutaCongelada />
         </motion.main>
       </AnimatePresence>
 

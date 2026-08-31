@@ -84,7 +84,6 @@ export function ProductoModal({
             <div className="min-h-0 flex-1 space-y-3.5 overflow-y-auto px-5 pb-2">
               <Campo label="Nombre">
                 <input
-                  autoFocus={!inicial && !nombreSugerido?.trim()}
                   value={d.nombre}
                   onChange={(e) => setD({ ...d, nombre: e.target.value })}
                   placeholder="Leche, fideos, lavandina…"

@@ -97,6 +97,8 @@ input,
 select,
 textarea {
   font-family: inherit;
+  /* iOS Safari hace zoom solo si la letra del campo es < 16px */
+  font-size: 16px;
 }
 
 :focus-visible {
@@ -121,7 +123,7 @@ textarea {
     background: var(--color-surface);
     color: var(--color-ink);
     padding: 0.7rem 0.85rem;
-    font-size: 0.95rem;
+    font-size: 16px;
     transition: border-color 0.15s, box-shadow 0.15s;
     outline: none;
   }

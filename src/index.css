@@ -183,6 +183,27 @@ textarea {
   }
 }
 
+.wheel-scroll {
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    transparent,
+    #000 22%,
+    #000 78%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    180deg,
+    transparent,
+    #000 22%,
+    #000 78%,
+    transparent
+  );
+}
+.wheel-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 @keyframes syn-fade-up {
   from {
     opacity: 0;

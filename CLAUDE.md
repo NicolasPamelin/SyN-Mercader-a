@@ -25,8 +25,11 @@ App de stock de despensa + lista del super, compartida entre Sofi y Nico.
 
 ## Modelo de datos
 
-- `hogares` — la despensa compartida, con `codigo_invite` para sumar a la pareja.
-- `miembros` — usuarios ↔ hogar.
+- `hogares` — cada despensa/lista, con `codigo_invite` para sumar gente.
+- `miembros` — usuarios ↔ hogar (N a N). Un usuario puede tener varias despensas
+  ("Nuestra casa", "Viajes", …). La activa se guarda en `localStorage`
+  (`syn.hogar_activo`) y se cambia desde Ajustes (`cambiarHogar`). RPCs
+  `crear_hogar` / `unirse_a_hogar` ya soportan multi-hogar sin cambio de schema.
 - `productos` — catálogo + stock (`cantidad`, `minimo`, `esencial`, `categoria`, `unidad`).
 - `items_compra` — lista del super materializada. Un trigger la sincroniza:
   si `cantidad <= minimo` (y `minimo > 0`) inserta un item `origen='auto'`;

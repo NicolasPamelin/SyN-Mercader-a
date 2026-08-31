@@ -4,6 +4,7 @@ import { CATEGORIAS, CATEGORIA_DEFAULT, UNIDADES } from '../lib/constants'
 import type { Producto, Unidad } from '../lib/types'
 import { spring } from '../lib/ui'
 import { Segmented } from './ui/Segmented'
+import { WheelPicker } from './ui/WheelPicker'
 
 export interface DatosProducto {
   nombre: string
@@ -72,21 +73,15 @@ export function ProductoModal({
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={spring}
-            drag="y"
-            dragConstraints={{ top: 0, bottom: 0 }}
-            dragElastic={{ top: 0, bottom: 0.4 }}
-            onDragEnd={(_, info) => {
-              if (info.offset.y > 120) onCerrar()
-            }}
-            className="safe-bottom w-full max-w-md rounded-t-[1.75rem] border border-line bg-surface p-5 shadow-lift sm:rounded-[1.75rem]"
+            className="safe-bottom flex max-h-[90svh] w-full max-w-md flex-col rounded-t-[1.75rem] border border-line bg-surface shadow-lift sm:rounded-[1.75rem]"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mx-auto mb-4 h-1 w-9 rounded-full bg-line-strong sm:hidden" />
-            <h2 className="mb-4 text-lg">
+            <div className="mx-auto mt-3 h-1 w-9 shrink-0 rounded-full bg-line-strong sm:hidden" />
+            <h2 className="shrink-0 px-5 pb-3 pt-3 text-lg">
               {inicial ? 'Editar producto' : 'Nuevo producto'}
             </h2>
 
-            <div className="space-y-3.5">
+            <div className="min-h-0 flex-1 space-y-3.5 overflow-y-auto px-5 pb-2">
               <Campo label="Nombre">
                 <input
                   autoFocus={!inicial}
@@ -124,49 +119,45 @@ export function ProductoModal({
                 </Campo>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <Campo label="Tengo ahora">
-                  <input
-                    type="number"
-                    inputMode="decimal"
-                    min={0}
-                    step={d.paso}
-                    value={d.cantidad}
-                    onChange={(e) =>
-                      setD({ ...d, cantidad: Number(e.target.value) })
-                    }
-                    className="input"
-                  />
-                </Campo>
-                <Campo label="Mínimo">
-                  <input
-                    type="number"
-                    inputMode="decimal"
-                    min={0}
-                    step={d.paso}
-                    value={d.minimo}
-                    onChange={(e) =>
-                      setD({ ...d, minimo: Number(e.target.value) })
-                    }
-                    className="input"
-                  />
-                </Campo>
-              </div>
-              <p className="-mt-1.5 text-[11px] text-ink-faint">
-                Cuando bajás de tu mínimo, el producto salta solo a la lista.
-              </p>
-
-              <Campo label="El botón + / − mueve de a">
+              <Campo label="Contar de a">
                 <Segmented
                   layoutId="paso-seg"
                   value={d.paso}
-                  onChange={(paso) => setD({ ...d, paso })}
+                  onChange={(paso) =>
+                    setD({
+                      ...d,
+                      paso,
+                      cantidad:
+                        paso === 1 ? Math.round(d.cantidad) : d.cantidad,
+                      minimo: paso === 1 ? Math.round(d.minimo) : d.minimo,
+                    })
+                  }
                   options={[
                     { value: 1, label: '1 entero' },
                     { value: 0.5, label: '½ medio' },
                   ]}
                 />
               </Campo>
+
+              <div className="grid grid-cols-2 gap-3">
+                <WheelPicker
+                  label="Tengo ahora"
+                  value={d.cantidad}
+                  step={d.paso}
+                  max={60}
+                  onChange={(cantidad) => setD({ ...d, cantidad })}
+                />
+                <WheelPicker
+                  label="Mínimo"
+                  value={d.minimo}
+                  step={d.paso}
+                  max={40}
+                  onChange={(minimo) => setD({ ...d, minimo })}
+                />
+              </div>
+              <p className="text-[11px] text-ink-faint">
+                Cuando bajás del mínimo, el producto salta solo a la lista.
+              </p>
 
               <button
                 type="button"
@@ -197,7 +188,7 @@ export function ProductoModal({
               </button>
             </div>
 
-            <div className="mt-5 flex items-center gap-2">
+            <div className="flex shrink-0 items-center gap-2 border-t border-line px-5 py-3">
               {inicial && onArchivar ? (
                 <button
                   type="button"

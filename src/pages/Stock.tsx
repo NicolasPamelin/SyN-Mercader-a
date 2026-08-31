@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useDespensa } from '../context/DespensaContext'
-import { ordenCategoria } from '../lib/constants'
+import { formatCantidad, ordenCategoria } from '../lib/constants'
 import type { Producto } from '../lib/types'
 import { Stepper } from '../components/Stepper'
 import { ProductoModal, type DatosProducto } from '../components/ProductoModal'
@@ -115,15 +115,17 @@ export function Stock() {
                           <span className="truncate font-medium">{p.nombre}</span>
                         </div>
                         <span className="text-xs text-slate-400">
-                          {bajo ? 'En falta · ' : ''}mín. {p.minimo} {p.unidad}
+                          {bajo ? 'En falta · ' : ''}mín. {formatCantidad(p.minimo)}{' '}
+                          {p.unidad}
                         </span>
                       </button>
                       <Stepper
                         valor={p.cantidad}
                         unidad={p.unidad}
+                        paso={p.paso ?? 1}
                         bajo={bajo}
-                        onMenos={() => ajustarCantidad(p.id, -1)}
-                        onMas={() => ajustarCantidad(p.id, +1)}
+                        onMenos={() => ajustarCantidad(p.id, -(p.paso ?? 1))}
+                        onMas={() => ajustarCantidad(p.id, p.paso ?? 1)}
                         onFijar={(v) => fijarCantidad(p.id, v)}
                       />
                     </li>

@@ -36,16 +36,20 @@ create table if not exists public.productos (
   id          uuid primary key default gen_random_uuid(),
   hogar_id    uuid not null references public.hogares(id) on delete cascade,
   nombre      text not null,
-  categoria   text not null default 'General',
+  categoria   text not null default 'Almacén',
   unidad      text not null default 'unidad',
   cantidad    numeric not null default 0 check (cantidad >= 0),
   minimo      numeric not null default 0 check (minimo >= 0),
+  paso        numeric not null default 1,   -- de a cuánto suma/resta el botón: 1 o 0.5
   esencial    boolean not null default false,
   archivado   boolean not null default false,
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()
 );
 create index if not exists productos_hogar_idx on public.productos(hogar_id) where not archivado;
+
+-- Si ya tenías la tabla creada de antes, esto suma la columna nueva sin romper nada.
+alter table public.productos add column if not exists paso numeric not null default 1;
 
 -- Lista de compras materializada (lo que hay que llevar del super).
 create table if not exists public.items_compra (

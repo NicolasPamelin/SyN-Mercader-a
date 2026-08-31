@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useDespensa } from '../context/DespensaContext'
-import { ordenCategoria } from '../lib/constants'
+import { formatCantidad, ordenCategoria } from '../lib/constants'
 import type { ItemCompra } from '../lib/types'
 import { IconCheck, IconMas, IconMenos, IconBasura } from '../components/iconos'
 
@@ -213,7 +213,7 @@ function FilaItem({
       <div className={`min-w-0 flex-1 ${enCarrito ? 'opacity-40 line-through' : ''}`}>
         <span className="block truncate font-medium">{nombre}</span>
         <span className="text-xs text-slate-400">
-          {item.cantidad} {unidad}
+          {formatCantidad(item.cantidad)} {unidad}
           {item.origen === 'auto' ? ' · automático' : ''}
         </span>
       </div>
@@ -229,7 +229,7 @@ function FilaItem({
             <IconMenos width={16} height={16} />
           </button>
           <span className="w-6 text-center text-sm font-semibold tabular-nums">
-            {item.cantidad}
+            {formatCantidad(item.cantidad)}
           </span>
           <button
             type="button"

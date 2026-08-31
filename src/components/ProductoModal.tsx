@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { CATEGORIAS, UNIDADES } from '../lib/constants'
+import { CATEGORIAS, CATEGORIA_DEFAULT, UNIDADES } from '../lib/constants'
 import type { Producto, Unidad } from '../lib/types'
 
 export interface DatosProducto {
@@ -8,6 +8,7 @@ export interface DatosProducto {
   unidad: Unidad
   cantidad: number
   minimo: number
+  paso: number
   esencial: boolean
 }
 
@@ -39,6 +40,7 @@ export function ProductoModal({
         unidad: inicial.unidad,
         cantidad: inicial.cantidad,
         minimo: inicial.minimo,
+        paso: inicial.paso ?? 1,
         esencial: inicial.esencial,
       })
     } else {
@@ -109,6 +111,7 @@ export function ProductoModal({
                 type="number"
                 inputMode="decimal"
                 min={0}
+                step={d.paso}
                 value={d.cantidad}
                 onChange={(e) => setD({ ...d, cantidad: Number(e.target.value) })}
                 className="input"
@@ -119,12 +122,35 @@ export function ProductoModal({
                 type="number"
                 inputMode="decimal"
                 min={0}
+                step={d.paso}
                 value={d.minimo}
                 onChange={(e) => setD({ ...d, minimo: Number(e.target.value) })}
                 className="input"
               />
             </Campo>
           </div>
+
+          <Campo label="El botón + / − suma de a">
+            <div className="flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
+              {[
+                { v: 1, txt: '1 entero' },
+                { v: 0.5, txt: '½ (medio)' },
+              ].map((o) => (
+                <button
+                  key={o.v}
+                  type="button"
+                  onClick={() => setD({ ...d, paso: o.v })}
+                  className={`flex-1 rounded-lg py-2 text-sm font-medium ${
+                    d.paso === o.v
+                      ? 'bg-white shadow dark:bg-slate-900'
+                      : 'text-slate-500'
+                  }`}
+                >
+                  {o.txt}
+                </button>
+              ))}
+            </div>
+          </Campo>
 
           <label className="flex items-center gap-3 rounded-xl bg-slate-50 p-3 dark:bg-slate-800">
             <input
@@ -181,10 +207,11 @@ function Campo({ label, children }: { label: string; children: React.ReactNode }
 function vacio(): DatosProducto {
   return {
     nombre: '',
-    categoria: 'Almacén',
+    categoria: CATEGORIA_DEFAULT,
     unidad: 'unidad',
     cantidad: 1,
     minimo: 1,
+    paso: 1,
     esencial: false,
   }
 }

@@ -35,7 +35,9 @@ export function Stepper({
         <input
           type="number"
           inputMode="decimal"
-          value={Number.isInteger(valor) ? valor : valor.toFixed(2)}
+          step={paso}
+          min={0}
+          value={valor}
           onChange={(e) => onFijar?.(Number(e.target.value))}
           readOnly={!onFijar}
           className={`w-16 rounded-lg bg-transparent text-center text-lg font-semibold tabular-nums outline-none ${
@@ -55,7 +57,6 @@ export function Stepper({
       >
         <IconMas width={20} height={20} />
       </button>
-      {paso !== 1 ? <span className="sr-only">paso {paso}</span> : null}
     </div>
   )
 }

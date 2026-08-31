@@ -17,6 +17,7 @@ interface NuevoProducto {
   unidad: Unidad
   cantidad: number
   minimo: number
+  paso: number
   esencial: boolean
 }
 

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { motion } from 'motion/react'
 import { useAuth } from '../context/AuthContext'
 
 export function Login() {
@@ -18,10 +19,7 @@ export function Login() {
     const fn = modo === 'ingresar' ? ingresar : registrarse
     const { error } = await fn(email.trim(), pass)
     setCargando(false)
-    if (error) {
-      setError(error)
-      return
-    }
+    if (error) return setError(error)
     if (modo === 'registrarse') {
       setOk('Cuenta creada. Si te pide confirmar el mail, revisá tu casilla y después ingresá.')
       setModo('ingresar')
@@ -29,66 +27,74 @@ export function Login() {
   }
 
   return (
-    <div className="mx-auto flex min-h-[100svh] max-w-md flex-col justify-center px-6">
-      <div className="mb-8 text-center">
-        <div className="mx-auto mb-3 grid h-16 w-16 place-items-center rounded-2xl bg-marca-600 text-2xl font-black text-white">
-          SyN
+    <div className="mx-auto flex min-h-[100svh] max-w-md flex-col justify-center px-7">
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div className="mb-9">
+          <span className="mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-marca text-lg font-bold text-white shadow-lift">
+            SyN
+          </span>
+          <h1 className="text-[1.9rem] leading-tight">
+            El stock de casa y la lista del super, para los dos.
+          </h1>
+          <p className="mt-2 text-sm text-ink-soft">
+            Sumás y descontás con un toque. Lo que falta, se arma solo.
+          </p>
         </div>
-        <h1 className="text-xl font-bold">SyN Mercadería</h1>
-        <p className="text-sm text-slate-500">
-          El stock de casa y la lista del super, para los dos.
-        </p>
-      </div>
 
-      <form onSubmit={enviar} className="space-y-3">
-        <input
-          type="email"
-          required
-          placeholder="Email"
-          autoComplete="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="input"
-        />
-        <input
-          type="password"
-          required
-          placeholder="Contraseña"
-          autoComplete={modo === 'ingresar' ? 'current-password' : 'new-password'}
-          value={pass}
-          onChange={(e) => setPass(e.target.value)}
-          className="input"
-        />
+        <form onSubmit={enviar} className="space-y-3">
+          <input
+            type="email"
+            required
+            placeholder="Email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="input"
+          />
+          <input
+            type="password"
+            required
+            placeholder="Contraseña"
+            autoComplete={modo === 'ingresar' ? 'current-password' : 'new-password'}
+            value={pass}
+            onChange={(e) => setPass(e.target.value)}
+            className="input"
+          />
 
-        {error ? <p className="text-sm text-rose-600">{error}</p> : null}
-        {ok ? <p className="text-sm text-marca-700">{ok}</p> : null}
+          {error ? <p className="text-sm text-alerta">{error}</p> : null}
+          {ok ? <p className="text-sm text-marca-ink">{ok}</p> : null}
+
+          <button
+            type="submit"
+            disabled={cargando}
+            className="btn-primary w-full py-3.5"
+          >
+            {cargando
+              ? 'Un segundo…'
+              : modo === 'ingresar'
+                ? 'Ingresar'
+                : 'Crear cuenta'}
+          </button>
+        </form>
 
         <button
-          type="submit"
-          disabled={cargando}
-          className="w-full rounded-xl bg-marca-600 py-3 font-semibold text-white disabled:opacity-60"
+          type="button"
+          onClick={() => {
+            setModo(modo === 'ingresar' ? 'registrarse' : 'ingresar')
+            setError(null)
+            setOk(null)
+          }}
+          className="mt-4 w-full text-center text-sm text-ink-soft"
         >
-          {cargando
-            ? 'Un segundo…'
-            : modo === 'ingresar'
-              ? 'Ingresar'
-              : 'Crear cuenta'}
+          {modo === 'ingresar'
+            ? '¿No tenés cuenta? Crear una'
+            : '¿Ya tenés cuenta? Ingresar'}
         </button>
-      </form>
-
-      <button
-        type="button"
-        onClick={() => {
-          setModo(modo === 'ingresar' ? 'registrarse' : 'ingresar')
-          setError(null)
-          setOk(null)
-        }}
-        className="mt-4 text-center text-sm text-slate-500"
-      >
-        {modo === 'ingresar'
-          ? '¿No tenés cuenta? Crear una'
-          : '¿Ya tenés cuenta? Ingresar'}
-      </button>
+      </motion.div>
     </div>
   )
 }

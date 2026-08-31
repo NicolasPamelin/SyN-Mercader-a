@@ -1,10 +1,13 @@
 import { useMemo, useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
 import { useDespensa } from '../context/DespensaContext'
 import { formatCantidad, ordenCategoria } from '../lib/constants'
 import type { Producto } from '../lib/types'
 import { Stepper } from '../components/Stepper'
 import { ProductoModal, type DatosProducto } from '../components/ProductoModal'
 import { IconBuscar, IconEstrella, IconMas } from '../components/iconos'
+import { useToast } from '../components/ui/Toast'
+import { listItem } from '../lib/ui'
 
 export function Stock() {
   const {
@@ -13,8 +16,8 @@ export function Stock() {
     editarProducto,
     archivarProducto,
     ajustarCantidad,
-    fijarCantidad,
   } = useDespensa()
+  const toast = useToast()
 
   const [q, setQ] = useState('')
   const [modal, setModal] = useState<{ abierto: boolean; prod: Producto | null }>({
@@ -40,97 +43,87 @@ export function Stock() {
   }, [productos, filtro])
 
   const hayExacto = productos.some((p) => p.nombre.toLowerCase() === filtro)
-  const bajos = productos.filter((p) => p.minimo > 0 && p.cantidad <= p.minimo).length
+  const bajos = productos.filter(
+    (p) => p.minimo > 0 && p.cantidad <= p.minimo,
+  ).length
 
   const guardar = async (d: DatosProducto) => {
-    if (modal.prod) await editarProducto(modal.prod.id, d)
-    else await agregarProducto(d)
+    if (modal.prod) {
+      await editarProducto(modal.prod.id, d)
+      toast('Producto actualizado')
+    } else {
+      await agregarProducto(d)
+      toast(`${d.nombre} está en la despensa`)
+    }
   }
 
   return (
     <div>
-      <header className="mb-4 flex items-baseline justify-between">
-        <h1 className="text-2xl font-bold">Despensa</h1>
-        <span className="text-xs text-slate-400">
-          {productos.length} productos
-          {bajos > 0 ? ` · ${bajos} en falta` : ''}
+      <div className="mb-5 flex items-end justify-between">
+        <h1 className="text-[1.7rem]">Despensa</h1>
+        <span className="pb-1 text-xs text-ink-faint">
+          {productos.length} {productos.length === 1 ? 'producto' : 'productos'}
+          {bajos > 0 ? (
+            <span className="text-alerta"> · {bajos} en falta</span>
+          ) : null}
         </span>
-      </header>
+      </div>
 
-      <div className="sticky top-0 z-10 -mx-4 mb-3 bg-slate-50 px-4 py-2 dark:bg-slate-950">
+      <div className="sticky top-[57px] z-10 -mx-5 mb-4 bg-bg/85 px-5 py-2 backdrop-blur-md">
         <div className="relative">
           <IconBuscar
-            width={18}
-            height={18}
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+            width={17}
+            height={17}
+            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint"
           />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Buscar o agregar producto…"
-            className="input pl-9"
+            placeholder="Buscar o agregar…"
+            className="input pl-10"
           />
         </div>
 
-        {filtro && !hayExacto ? (
-          <button
-            type="button"
-            onClick={() => setModal({ abierto: true, prod: null })}
-            className="mt-2 flex w-full items-center gap-2 rounded-xl border border-dashed border-marca-500 px-3 py-2.5 text-sm font-medium text-marca-700 dark:text-marca-500"
-          >
-            <IconMas width={16} height={16} />
-            Agregar “{q.trim()}” al catálogo
-          </button>
-        ) : null}
+        <AnimatePresence>
+          {filtro && !hayExacto ? (
+            <motion.button
+              type="button"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              onClick={() => setModal({ abierto: true, prod: null })}
+              className="mt-2 flex w-full items-center gap-2 rounded-xl border border-dashed border-marca px-3 py-2.5 text-sm font-semibold text-marca-ink"
+            >
+              <IconMas width={16} height={16} />
+              Agregar “{q.trim()}”
+            </motion.button>
+          ) : null}
+        </AnimatePresence>
       </div>
 
       {productos.length === 0 ? (
         <EstadoVacio onNuevo={() => setModal({ abierto: true, prod: null })} />
+      ) : grupos.length === 0 ? (
+        <p className="mt-16 text-center text-sm text-ink-soft">
+          Nada con ese nombre. Podés agregarlo desde el botón de arriba.
+        </p>
       ) : (
-        <div className="space-y-5">
+        <div className="space-y-6">
           {grupos.map(([cat, items]) => (
             <section key={cat}>
-              <h2 className="mb-1.5 px-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
-                {cat}
-              </h2>
-              <ul className="divide-y divide-slate-100 overflow-hidden rounded-2xl bg-white dark:divide-slate-800 dark:bg-slate-900">
-                {items.map((p) => {
-                  const bajo = p.minimo > 0 && p.cantidad <= p.minimo
-                  return (
-                    <li key={p.id} className="flex items-center gap-2 p-2.5">
-                      <button
-                        type="button"
-                        onClick={() => setModal({ abierto: true, prod: p })}
-                        className="min-w-0 flex-1 text-left"
-                      >
-                        <div className="flex items-center gap-1.5">
-                          {p.esencial ? (
-                            <IconEstrella
-                              width={13}
-                              height={13}
-                              className="shrink-0 text-amber-400"
-                              fill="currentColor"
-                            />
-                          ) : null}
-                          <span className="truncate font-medium">{p.nombre}</span>
-                        </div>
-                        <span className="text-xs text-slate-400">
-                          {bajo ? 'En falta · ' : ''}mín. {formatCantidad(p.minimo)}{' '}
-                          {p.unidad}
-                        </span>
-                      </button>
-                      <Stepper
-                        valor={p.cantidad}
-                        unidad={p.unidad}
-                        paso={p.paso ?? 1}
-                        bajo={bajo}
-                        onMenos={() => ajustarCantidad(p.id, -(p.paso ?? 1))}
-                        onMas={() => ajustarCantidad(p.id, p.paso ?? 1)}
-                        onFijar={(v) => fijarCantidad(p.id, v)}
-                      />
-                    </li>
-                  )
-                })}
+              <h2 className="eyebrow mb-2 px-1">{cat}</h2>
+              <ul className="card divide-y divide-line overflow-hidden">
+                <AnimatePresence initial={false}>
+                  {items.map((p) => (
+                    <ProductoFila
+                      key={p.id}
+                      p={p}
+                      onEditar={() => setModal({ abierto: true, prod: p })}
+                      onMenos={() => ajustarCantidad(p.id, -(p.paso ?? 1))}
+                      onMas={() => ajustarCantidad(p.id, p.paso ?? 1)}
+                    />
+                  ))}
+                </AnimatePresence>
               </ul>
             </section>
           ))}
@@ -149,8 +142,10 @@ export function Stock() {
         onArchivar={
           modal.prod
             ? async () => {
+                const nombre = modal.prod!.nombre
                 await archivarProducto(modal.prod!.id)
                 setModal({ abierto: false, prod: null })
+                toast(`${nombre} eliminado`, 'info')
               }
             : undefined
         }
@@ -159,19 +154,110 @@ export function Stock() {
   )
 }
 
+function ProductoFila({
+  p,
+  onEditar,
+  onMenos,
+  onMas,
+}: {
+  p: Producto
+  onEditar: () => void
+  onMenos: () => void
+  onMas: () => void
+}) {
+  const bajo = p.minimo > 0 && p.cantidad <= p.minimo
+  const objetivo = p.minimo > 0 ? p.minimo * 2 : Math.max(p.cantidad, 1)
+  const pct = Math.max(0, Math.min(1, p.cantidad / objetivo))
+
+  return (
+    <motion.li layout {...listItem} className="p-3">
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={onEditar}
+          className="min-w-0 flex-1 text-left"
+        >
+          <span className="flex items-center gap-1.5">
+            {p.esencial ? (
+              <IconEstrella
+                width={12}
+                height={12}
+                className="shrink-0 text-marca"
+                fill="currentColor"
+              />
+            ) : null}
+            <span className="truncate font-medium">{p.nombre}</span>
+          </span>
+          <span
+            className={`text-xs ${bajo ? 'text-alerta' : 'text-ink-faint'}`}
+          >
+            {bajo ? 'Reponer' : 'En casa'} · mín. {formatCantidad(p.minimo)}{' '}
+            {p.unidad}
+          </span>
+        </button>
+        <Stepper
+          valor={p.cantidad}
+          unidad={p.unidad}
+          bajo={bajo}
+          onMenos={onMenos}
+          onMas={onMas}
+        />
+      </div>
+
+      <div className="relative mt-2.5 h-1 overflow-hidden rounded-full bg-surface-2">
+        <motion.span
+          className={`absolute inset-y-0 left-0 rounded-full ${
+            bajo ? 'bg-alerta' : 'bg-marca'
+          }`}
+          animate={{ width: `${pct * 100}%` }}
+          transition={{ type: 'spring', stiffness: 240, damping: 30 }}
+        />
+        {p.minimo > 0 ? (
+          <span className="absolute inset-y-0 left-1/2 w-px bg-line-strong" />
+        ) : null}
+      </div>
+    </motion.li>
+  )
+}
+
 function EstadoVacio({ onNuevo }: { onNuevo: () => void }) {
   return (
-    <div className="mt-16 text-center">
-      <p className="mb-1 font-medium">Todavía no cargaste nada</p>
-      <p className="mb-4 text-sm text-slate-500">
-        Empezá por lo esencial: leche, pan, fideos, papel, lo que nunca puede
-        faltar.
-      </p>
-      <button
-        type="button"
-        onClick={onNuevo}
-        className="rounded-xl bg-marca-600 px-5 py-3 font-semibold text-white"
+    <div className="mt-14 flex flex-col items-center px-6 text-center">
+      <svg
+        width="112"
+        height="112"
+        viewBox="0 0 112 112"
+        fill="none"
+        className="mb-5 text-marca"
       >
+        <rect
+          x="22"
+          y="30"
+          width="68"
+          height="66"
+          rx="8"
+          stroke="currentColor"
+          strokeWidth="3"
+          opacity="0.35"
+        />
+        <path
+          d="M22 50h68M22 72h68M46 30v66"
+          stroke="currentColor"
+          strokeWidth="3"
+          opacity="0.35"
+        />
+        <path
+          d="M38 16h36l-4 14H42l-4-14Z"
+          stroke="currentColor"
+          strokeWidth="3"
+          strokeLinejoin="round"
+        />
+      </svg>
+      <h2 className="mb-1 text-lg">Tu despensa está vacía</h2>
+      <p className="mb-5 max-w-[16rem] text-sm text-ink-soft">
+        Empezá por lo que nunca puede faltar: leche, pan, fideos, papel.
+      </p>
+      <button type="button" onClick={onNuevo} className="btn-primary">
         Cargar el primero
       </button>
     </div>

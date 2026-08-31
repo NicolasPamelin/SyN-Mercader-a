@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { supabaseConfigurado } from './lib/supabase'
 import { useAuth } from './context/AuthContext'
 import { DespensaProvider, useDespensa } from './context/DespensaContext'
+import { ToastProvider } from './components/ui/Toast'
 import { AppShell } from './components/AppShell'
 import { Login } from './pages/Login'
 import { Onboarding } from './pages/Onboarding'
@@ -13,24 +14,26 @@ function App() {
   if (!supabaseConfigurado) return <FaltaConfig />
 
   return (
-    <AuthGate>
-      <DespensaProvider>
-        <ConHogar />
-      </DespensaProvider>
-    </AuthGate>
+    <ToastProvider>
+      <AuthGate>
+        <DespensaProvider>
+          <ConHogar />
+        </DespensaProvider>
+      </AuthGate>
+    </ToastProvider>
   )
 }
 
 function AuthGate({ children }: { children: React.ReactNode }) {
   const { session, cargando } = useAuth()
-  if (cargando) return <Cargando />
+  if (cargando) return <Splash />
   if (!session) return <Login />
   return <>{children}</>
 }
 
 function ConHogar() {
   const { cargando, hogar } = useDespensa()
-  if (cargando) return <Cargando />
+  if (cargando) return <Splash />
   if (!hogar) return <Onboarding />
 
   return (
@@ -45,10 +48,15 @@ function ConHogar() {
   )
 }
 
-function Cargando() {
+function Splash() {
   return (
-    <div className="grid min-h-[100svh] place-items-center text-sm text-slate-400">
-      Cargando…
+    <div className="grid min-h-[100svh] place-items-center">
+      <div className="flex flex-col items-center gap-3">
+        <span className="grid h-12 w-12 animate-[syn-fade-up_0.4s_ease] place-items-center rounded-2xl bg-marca text-sm font-bold text-white">
+          SyN
+        </span>
+        <span className="text-xs text-ink-faint">Cargando tu despensa…</span>
+      </div>
     </div>
   )
 }
@@ -56,12 +64,12 @@ function Cargando() {
 function FaltaConfig() {
   return (
     <div className="mx-auto max-w-md px-6 py-16">
-      <h1 className="mb-2 text-xl font-bold">Falta conectar Supabase</h1>
-      <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
-        Completá <code>.env.local</code> con los datos de tu proyecto y reiniciá{' '}
-        <code>npm run dev</code>:
+      <h1 className="mb-2 text-xl">Falta conectar Supabase</h1>
+      <p className="mb-4 text-sm text-ink-soft">
+        Completá <code className="rounded bg-surface-2 px-1">.env.local</code> con
+        los datos de tu proyecto y reiniciá <code>npm run dev</code>:
       </p>
-      <pre className="overflow-x-auto rounded-xl bg-slate-900 p-4 text-xs text-slate-100">
+      <pre className="overflow-x-auto rounded-xl bg-ink p-4 text-xs text-bg">
         {`VITE_SUPABASE_URL=https://xxxx.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJ...`}
       </pre>

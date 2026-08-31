@@ -1,62 +1,73 @@
+import { motion, useReducedMotion } from 'motion/react'
 import { IconMas, IconMenos } from './iconos'
+import { AnimatedNumber } from './ui/AnimatedNumber'
+import { formatCantidad } from '../lib/constants'
+import { spring, tap } from '../lib/ui'
 
 interface Props {
   valor: number
   unidad?: string
-  paso?: number
   onMenos: () => void
   onMas: () => void
-  onFijar?: (v: number) => void
   bajo?: boolean
+  size?: 'md' | 'sm'
 }
 
-export function Stepper({
-  valor,
-  unidad,
-  paso = 1,
-  onMenos,
-  onMas,
-  onFijar,
-  bajo,
-}: Props) {
-  return (
-    <div className="flex items-center gap-1.5">
-      <button
-        type="button"
-        onClick={onMenos}
-        aria-label="Restar"
-        className="grid h-11 w-11 place-items-center rounded-full bg-slate-100 text-slate-700 active:scale-95 disabled:opacity-40 dark:bg-slate-800 dark:text-slate-200"
-        disabled={valor <= 0}
-      >
-        <IconMenos width={20} height={20} />
-      </button>
+export function Stepper({ valor, unidad, onMenos, onMas, bajo, size = 'md' }: Props) {
+  const reduce = useReducedMotion()
+  const press = reduce ? undefined : { scale: 0.84 }
+  const btn = size === 'sm' ? 'h-8 w-8' : 'h-10 w-10'
+  const icon = size === 'sm' ? 15 : 18
 
-      <label className="flex min-w-[3.5rem] flex-col items-center">
-        <input
-          type="number"
-          inputMode="decimal"
-          step={paso}
-          min={0}
+  return (
+    <div className="flex items-center gap-1 rounded-full border border-line bg-surface-2 p-1">
+      <motion.button
+        type="button"
+        whileTap={press}
+        transition={spring}
+        onClick={() => {
+          tap()
+          onMenos()
+        }}
+        aria-label="Restar"
+        disabled={valor <= 0}
+        className={`grid ${btn} place-items-center rounded-full text-ink-soft transition-colors active:bg-surface disabled:opacity-30`}
+      >
+        <IconMenos width={icon} height={icon} />
+      </motion.button>
+
+      <div
+        className={`flex flex-col items-center leading-none ${
+          size === 'sm' ? 'min-w-[1.75rem]' : 'min-w-[2.75rem]'
+        }`}
+      >
+        <AnimatedNumber
           value={valor}
-          onChange={(e) => onFijar?.(Number(e.target.value))}
-          readOnly={!onFijar}
-          className={`w-16 rounded-lg bg-transparent text-center text-lg font-semibold tabular-nums outline-none ${
-            bajo ? 'text-rose-600 dark:text-rose-400' : ''
+          format={formatCantidad}
+          className={`font-semibold ${size === 'sm' ? 'text-base' : 'text-[1.15rem]'} ${
+            bajo ? 'text-alerta' : 'text-ink'
           }`}
         />
-        {unidad ? (
-          <span className="text-[11px] leading-none text-slate-400">{unidad}</span>
+        {unidad && size !== 'sm' ? (
+          <span className="mt-0.5 text-[10px] font-medium text-ink-faint">
+            {unidad}
+          </span>
         ) : null}
-      </label>
+      </div>
 
-      <button
+      <motion.button
         type="button"
-        onClick={onMas}
+        whileTap={press}
+        transition={spring}
+        onClick={() => {
+          tap()
+          onMas()
+        }}
         aria-label="Sumar"
-        className="grid h-11 w-11 place-items-center rounded-full bg-marca-600 text-white active:scale-95"
+        className={`grid ${btn} place-items-center rounded-full bg-marca text-white shadow-soft`}
       >
-        <IconMas width={20} height={20} />
-      </button>
+        <IconMas width={icon} height={icon} />
+      </motion.button>
     </div>
   )
 }

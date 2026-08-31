@@ -2,6 +2,7 @@
 
 - `SyN_Logo.jpeg` — primer logo (aro + casa + SyN). Referencia.
 - `SyN_2.png` — segundo logo (aro neón + carrito 3D + SyN). Referencia.
+- `Carrito_1.png` — carrito 3D cromado. Referencia de silueta (canasto con rejilla).
 
 Ninguno de los dos se usa directo en la app: son estilo 3D / neón, no rinden a
 tamaño chico y el celeste choca con la paleta cálida. Se toma el **concepto** y

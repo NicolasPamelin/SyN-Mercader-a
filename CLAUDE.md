@@ -61,9 +61,21 @@ App de stock de despensa + lista del super, compartida entre Sofi y Nico.
 - Para revisar visualmente sin sesión: `npm run dev` + screenshot headless a
   ancho grande (1200) — el headless viejo a 390 recorta y engaña.
 
+## Deploy
+
+- **En vivo:** https://syn-mercaderia.netlify.app (Netlify, team `nicolaspamelinvarela`,
+  project `syn-mercaderia` / id `1e3fc4ee-cce0-4458-8350-dda8a40d560a`).
+- Carpeta linkeada (`.netlify/`, gitignored). `netlify.toml` + `public/_redirects`
+  para ruteo SPA. Env vars `VITE_SUPABASE_*` en contexto `production`.
+- Republicar: `npm run build && netlify deploy --prod --dir=dist`.
+- Todavía NO hay auto-deploy por git push (se conecta el repo desde el panel de Netlify).
+- CLI de Netlify ya logueada como Nico. El MCP de Netlify está configurado pero
+  sin auth (401) — usar la CLI.
+
 ## Estado actual
 
-- Fase 1 (MVP) implementada: catálogo, +/- rápido, lista automática + manual,
-  modo super con reposición, PWA, realtime.
-- Falta: que el usuario cree el proyecto Supabase y complete `.env.local`.
+- Fase 1 (MVP) implementada + rediseño premium + logo + deploy.
+- Pendiente que Nico haga en Supabase: setear **Site URL** a la URL de Netlify en
+  Authentication → URL Configuration (para que los mails de confirmación/reset
+  apunten bien), o apagar "Confirm email".
 - Pendiente fase 2: escáner de código de barras. Fase 3: foto de ticket, historial.

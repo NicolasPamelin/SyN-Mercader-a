@@ -1,5 +1,7 @@
 # SyN Mercadería
 
+**En vivo:** https://syn-mercaderia.netlify.app
+
 App web (mobile-first, instalable como PWA) para llevar el **stock de la despensa** y
 armar la **lista del super**, compartida entre dos personas (Sofi + Nico).
 
@@ -69,9 +71,21 @@ usá la URL "Network" que imprime Vite.
 
 ## Deploy a Netlify
 
-El proyecto ya está listo para Netlify (build `npm run build`, publish `dist`).
-Cargá las variables `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` en
-**Site settings → Environment variables**. Ver también la skill `/deploy-sitio`.
+Ya está deployado en el proyecto Netlify **syn-mercaderia**
+(team `nicolaspamelinvarela`, project id `1e3fc4ee-cce0-4458-8350-dda8a40d560a`).
+La carpeta ya está linkeada (`.netlify/`), con `netlify.toml` y `public/_redirects`
+para el ruteo SPA. Las env vars `VITE_SUPABASE_*` están cargadas en el contexto
+`production`.
+
+Para volver a publicar después de un cambio:
+
+```bash
+npm run build
+netlify deploy --prod --dir=dist
+```
+
+Para auto-deploy en cada `git push`: conectá el repo de GitHub desde el panel de
+Netlify (Site configuration → Build & deploy → Link repository).
 
 ## Roadmap
 

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
 import { useDespensa } from '../context/DespensaContext'
-import { spring } from '../lib/ui'
+import { Segmented } from '../components/ui/Segmented'
 
 export function Onboarding() {
   const { crearHogar, unirseHogar } = useDespensa()
@@ -41,26 +41,16 @@ export function Onboarding() {
           Creá una nueva o sumate a la de tu pareja con el código.
         </p>
 
-        <div className="mb-5 flex rounded-full bg-surface-2 p-1">
-          {(['crear', 'unirse'] as const).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => setModo(m)}
-              className="relative flex-1 rounded-full py-2 text-sm font-semibold"
-            >
-              {modo === m ? (
-                <motion.span
-                  layoutId="onb-seg"
-                  transition={spring}
-                  className="absolute inset-0 -z-10 rounded-full bg-marca shadow-soft"
-                />
-              ) : null}
-              <span className={modo === m ? 'text-white' : 'text-ink-soft'}>
-                {m === 'crear' ? 'Crear nueva' : 'Tengo un código'}
-              </span>
-            </button>
-          ))}
+        <div className="mb-5">
+          <Segmented
+            layoutId="onb-seg"
+            value={modo}
+            onChange={setModo}
+            options={[
+              { value: 'crear' as const, label: 'Crear nueva' },
+              { value: 'unirse' as const, label: 'Tengo un código' },
+            ]}
+          />
         </div>
 
         <form onSubmit={enviar} className="space-y-3">

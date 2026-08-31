@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { CATEGORIAS, CATEGORIA_DEFAULT, UNIDADES } from '../lib/constants'
 import type { Producto, Unidad } from '../lib/types'
 import { spring } from '../lib/ui'
+import { Segmented } from './ui/Segmented'
 
 export interface DatosProducto {
   nombre: string
@@ -156,32 +157,15 @@ export function ProductoModal({
               </p>
 
               <Campo label="El botón + / − mueve de a">
-                <div className="flex rounded-xl bg-surface-2 p-1">
-                  {[
-                    { v: 1, txt: '1 entero' },
-                    { v: 0.5, txt: '½ medio' },
-                  ].map((o) => (
-                    <button
-                      key={o.v}
-                      type="button"
-                      onClick={() => setD({ ...d, paso: o.v })}
-                      className="relative flex-1 rounded-lg py-2 text-sm font-medium"
-                    >
-                      {d.paso === o.v ? (
-                        <motion.span
-                          layoutId="paso-seg"
-                          transition={spring}
-                          className="absolute inset-0 -z-10 rounded-lg bg-surface shadow-soft"
-                        />
-                      ) : null}
-                      <span
-                        className={d.paso === o.v ? 'text-ink' : 'text-ink-faint'}
-                      >
-                        {o.txt}
-                      </span>
-                    </button>
-                  ))}
-                </div>
+                <Segmented
+                  layoutId="paso-seg"
+                  value={d.paso}
+                  onChange={(paso) => setD({ ...d, paso })}
+                  options={[
+                    { value: 1, label: '1 entero' },
+                    { value: 0.5, label: '½ medio' },
+                  ]}
+                />
               </Campo>
 
               <button

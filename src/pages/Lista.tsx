@@ -3,8 +3,16 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useDespensa } from '../context/DespensaContext'
 import { formatCantidad, ordenCategoria } from '../lib/constants'
 import type { ItemCompra } from '../lib/types'
-import { IconBasura, IconCheck, IconMas, IconMenos } from '../components/iconos'
+import {
+  IconBasura,
+  IconCarrito,
+  IconCheck,
+  IconLista,
+  IconMas,
+  IconMenos,
+} from '../components/iconos'
 import { useToast } from '../components/ui/Toast'
+import { Segmented } from '../components/ui/Segmented'
 import { listItem, spring, tap } from '../lib/ui'
 
 interface Fila {
@@ -107,29 +115,24 @@ export function Lista() {
         </span>
       </div>
 
-      <div className="mb-4 flex rounded-full bg-surface-2 p-1">
-        {[
-          { v: false, txt: 'Planificar' },
-          { v: true, txt: 'En el super' },
-        ].map((o) => (
-          <button
-            key={o.txt}
-            type="button"
-            onClick={() => setModoSuper(o.v)}
-            className="relative flex-1 rounded-full py-2 text-sm font-semibold"
-          >
-            {modoSuper === o.v ? (
-              <motion.span
-                layoutId="lista-seg"
-                transition={spring}
-                className="absolute inset-0 -z-10 rounded-full bg-marca shadow-soft"
-              />
-            ) : null}
-            <span className={modoSuper === o.v ? 'text-white' : 'text-ink-soft'}>
-              {o.txt}
-            </span>
-          </button>
-        ))}
+      <div className="mb-4">
+        <Segmented
+          layoutId="lista-seg"
+          value={modoSuper}
+          onChange={setModoSuper}
+          options={[
+            {
+              value: false,
+              label: 'Planificar',
+              icon: <IconLista width={15} height={15} />,
+            },
+            {
+              value: true,
+              label: 'En el super',
+              icon: <IconCarrito width={15} height={15} />,
+            },
+          ]}
+        />
       </div>
 
       <AnimatePresence mode="popLayout">

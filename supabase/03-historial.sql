@@ -11,12 +11,16 @@ create table if not exists public.compras (
   items       jsonb not null default '[]',   -- [{nombre, cantidad, unidad}]
   cant_items  int not null default 0,
   total       numeric,
+  mercado     text,
   nota        text,
   foto_path   text,
   creada_por  uuid not null default auth.uid() references auth.users(id) on delete set null,
   created_at  timestamptz not null default now()
 );
 create index if not exists compras_hogar_idx on public.compras(hogar_id, fecha desc);
+
+-- si ya tenías la tabla de antes:
+alter table public.compras add column if not exists mercado text;
 
 alter table public.compras enable row level security;
 drop policy if exists compras_all on public.compras;

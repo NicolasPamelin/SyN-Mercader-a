@@ -227,6 +227,7 @@ create table if not exists public.compras (
   items       jsonb not null default '[]',   -- [{nombre, cantidad, unidad}]
   cant_items  int not null default 0,
   total       numeric,
+  mercado     text,
   nota        text,
   foto_path   text,                          -- ruta en el bucket 'tickets'
   creada_por  uuid not null default auth.uid() references auth.users(id) on delete set null,

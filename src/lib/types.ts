@@ -64,6 +64,7 @@ export interface Compra {
   items: CompraItem[]
   cant_items: number
   total: number | null
+  mercado: string | null
   nota: string | null
   foto_path: string | null
   creada_por: string | null

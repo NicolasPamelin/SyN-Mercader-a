@@ -94,6 +94,7 @@ export function Historial() {
                           {fmtFecha(c.fecha)}
                         </span>
                         <span className="text-xs text-ink-faint">
+                          {c.mercado ? `${c.mercado} · ` : ''}
                           {c.cant_items}{' '}
                           {c.cant_items === 1 ? 'producto' : 'productos'}
                           {c.foto_path ? ' · con ticket' : ''}
@@ -146,11 +147,29 @@ function DetalleCompra({
   const inputRef = useRef<HTMLInputElement>(null)
   const [fotoUrl, setFotoUrl] = useState<string | null>(null)
   const [subiendo, setSubiendo] = useState(false)
+  const [mercado, setMercado] = useState('')
+  const [total, setTotal] = useState('')
 
   useEffect(() => {
     setFotoUrl(null)
     if (compra?.foto_path) void urlTicket(compra.foto_path).then(setFotoUrl)
   }, [compra?.id, compra?.foto_path])
+
+  useEffect(() => {
+    setMercado(compra?.mercado ?? '')
+    setTotal(compra?.total != null ? String(compra.total) : '')
+  }, [compra?.id, compra?.mercado, compra?.total])
+
+  const guardarCampo = async (campo: 'mercado' | 'total', valor: string) => {
+    if (!compra) return
+    let v: string | number | null = valor.trim() || null
+    if (campo === 'total') {
+      const n = Number(valor.replace(',', '.').replace(/[^0-9.]/g, ''))
+      v = valor.trim() && !Number.isNaN(n) ? n : null
+    }
+    await supabase.from('compras').update({ [campo]: v }).eq('id', compra.id)
+    onCambio()
+  }
 
   const subir = async (file: File) => {
     if (!compra) return
@@ -194,6 +213,7 @@ function DetalleCompra({
             <div className="shrink-0 px-5 pb-3 pt-3">
               <h2 className="text-lg">{fmtFecha(compra.fecha, true)}</h2>
               <p className="text-xs text-ink-soft">
+                {compra.mercado ? `${compra.mercado} · ` : ''}
                 {compra.cant_items}{' '}
                 {compra.cant_items === 1 ? 'producto' : 'productos'}
                 {compra.total != null ? ` · ${fmtPesos(compra.total)}` : ''}
@@ -201,6 +221,34 @@ function DetalleCompra({
             </div>
 
             <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 pb-2">
+              <div className="grid grid-cols-2 gap-3">
+                <label className="block">
+                  <span className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-ink-faint">
+                    Supermercado
+                  </span>
+                  <input
+                    value={mercado}
+                    onChange={(e) => setMercado(e.target.value)}
+                    onBlur={() => guardarCampo('mercado', mercado)}
+                    placeholder="—"
+                    className="input"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-ink-faint">
+                    Total
+                  </span>
+                  <input
+                    inputMode="decimal"
+                    value={total}
+                    onChange={(e) => setTotal(e.target.value)}
+                    onBlur={() => guardarCampo('total', total)}
+                    placeholder="$"
+                    className="input"
+                  />
+                </label>
+              </div>
+
               <ul className="card divide-y divide-line overflow-hidden">
                 {compra.items.map((it, i) => (
                   <li

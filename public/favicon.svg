@@ -1,8 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <rect width="512" height="512" rx="116" fill="#0f766e" />
-  <path d="M146 208 256 126l110 82" fill="none" stroke="#ffffff" stroke-width="22"
-        stroke-linecap="round" stroke-linejoin="round" />
-  <text x="256" y="374" text-anchor="middle"
-        font-family="Fraunces, Georgia, 'Times New Roman', serif"
-        font-weight="600" font-size="194" letter-spacing="-4" fill="#ffffff">SyN</text>
+  <g transform="translate(96 104) scale(13.4)" fill="none" stroke="#ffffff"
+     stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M1 1h3.4l2.5 12.4a1.7 1.7 0 0 0 1.7 1.35h8.9a1.7 1.7 0 0 0 1.66-1.32L22.6 6H5.3" />
+    <circle cx="8.6" cy="20" r="1.5" />
+    <circle cx="18.4" cy="20" r="1.5" />
+  </g>
 </svg>

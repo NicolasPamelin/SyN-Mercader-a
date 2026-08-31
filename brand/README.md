@@ -1,17 +1,20 @@
 # Marca
 
-- `SyN_Logo.jpeg` — logo original que pasó Nico (referencia).
+- `SyN_Logo.jpeg` — primer logo (aro + casa + SyN). Referencia.
+- `SyN_2.png` — segundo logo (aro neón + carrito 3D + SyN). Referencia.
 
-En la app **no** se usa ese JPEG directo (tiene fondo, gradientes metálicos y
-mucho detalle que no rinde a tamaño chico). Se redibujó como vector plano:
+Ninguno de los dos se usa directo en la app: son estilo 3D / neón, no rinden a
+tamaño chico y el celeste choca con la paleta cálida. Se toma el **concepto** y
+se redibuja plano.
 
-- **En pantalla:** componente `src/components/Logo.tsx` (`LogoMark`) — aro doble
-  verde + techo de casa + "SyN" serif (Fraunces). Theme-aware, nítido a cualquier
-  tamaño. Se usa en la barra, el login y el splash.
-- **Ícono de la app / favicon:** `public/favicon.svg`, `public/icon-192.png`,
-  `public/icon-512.png`, `public/icon-maskable.png`, `public/apple-touch-icon.png`
-  — tile verde con techo + "SyN" en blanco. Se regeneran con el snippet de `sharp`
-  del historial si cambia el diseño.
+Versión vigente: **carrito de super dentro de un aro doble verde** (del segundo
+logo). Sin texto dentro del emblema — "SyN Mercadería" va como texto al lado.
 
-Si más adelante hay una versión vectorial oficial del logo, reemplazar el dibujo
-de `Logo.tsx` y regenerar los PNG.
+- **En pantalla:** `src/components/Logo.tsx` (`LogoMark`) — theme-aware, nítido a
+  cualquier tamaño. Barra, login y splash.
+- **Ícono app / favicon:** `public/favicon.svg` + `icon-192/512/maskable` +
+  `apple-touch-icon` — carrito blanco sobre tile verde. Se regeneran con el
+  snippet de `sharp` del historial.
+
+Si aparece un logo vectorial oficial, reemplazar el dibujo de `Logo.tsx` y
+regenerar los PNG.

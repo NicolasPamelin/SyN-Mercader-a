@@ -10,6 +10,7 @@ import { Login } from './pages/Login'
 import { Onboarding } from './pages/Onboarding'
 import { Stock } from './pages/Stock'
 import { Lista } from './pages/Lista'
+import { Historial } from './pages/Historial'
 import { Ajustes } from './pages/Ajustes'
 
 function App() {
@@ -45,6 +46,7 @@ function ConHogar() {
       <Route element={<AppShell />}>
         <Route index element={<Stock />} />
         <Route path="lista" element={<Lista />} />
+        <Route path="historial" element={<Historial />} />
         <Route path="ajustes" element={<Ajustes />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

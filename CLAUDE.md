@@ -34,6 +34,10 @@ App de stock de despensa + lista del super, compartida entre Sofi y Nico.
 - `items_compra` — lista del super materializada. Un trigger la sincroniza:
   si `cantidad <= minimo` (y `minimo > 0`) inserta un item `origen='auto'`;
   si sube, lo saca (solo si nadie lo pasó al carrito).
+- `compras` — historial. `confirmarCompra` guarda una fila con `items` (jsonb
+  snapshot), `cant_items`, `total?`, `foto_path?`. La foto del ticket va al bucket
+  privado `tickets` en `<hogar_id>/<compra_id>.jpg` (helpers en `lib/tickets.ts`,
+  con compresión client-side y signed URLs). SQL en `supabase/03-historial.sql`.
 
 ## Sistema visual (definido en src/index.css con @theme)
 

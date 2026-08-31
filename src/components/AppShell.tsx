@@ -2,7 +2,12 @@ import { useState } from 'react'
 import { NavLink, useLocation, useOutlet } from 'react-router-dom'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useDespensa } from '../context/DespensaContext'
-import { IconAjustes, IconCarrito, IconDespensa } from './iconos'
+import {
+  IconAjustes,
+  IconCarrito,
+  IconDespensa,
+  IconTicket,
+} from './iconos'
 import { LogoMark } from './Logo'
 import { spring } from '../lib/ui'
 
@@ -21,6 +26,7 @@ function RutaCongelada() {
 const tabs = [
   { to: '/', label: 'Despensa', Icon: IconDespensa, end: true },
   { to: '/lista', label: 'Lista', Icon: IconCarrito, end: false },
+  { to: '/historial', label: 'Historial', Icon: IconTicket, end: false },
   { to: '/ajustes', label: 'Ajustes', Icon: IconAjustes, end: false },
 ]
 
@@ -71,7 +77,7 @@ export function AppShell() {
                   <motion.span
                     layoutId="tab-pill"
                     transition={spring}
-                    className="absolute inset-x-3 top-1 bottom-1 -z-10 rounded-2xl bg-marca-soft"
+                    className="absolute inset-x-2 top-1 bottom-1 -z-10 rounded-2xl bg-marca-soft"
                   />
                 ) : null}
                 <span className="relative">

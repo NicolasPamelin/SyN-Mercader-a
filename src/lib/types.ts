@@ -50,3 +50,22 @@ export interface ItemCompra {
   origen: 'auto' | 'manual'
   created_at: string
 }
+
+export interface CompraItem {
+  nombre: string
+  cantidad: number
+  unidad: string
+}
+
+export interface Compra {
+  id: string
+  hogar_id: string
+  fecha: string
+  items: CompraItem[]
+  cant_items: number
+  total: number | null
+  nota: string | null
+  foto_path: string | null
+  creada_por: string | null
+  created_at: string
+}

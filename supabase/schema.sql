@@ -214,3 +214,78 @@ create policy items_compra_all on public.items_compra
 -- ============================================================
 alter publication supabase_realtime add table public.productos;
 alter publication supabase_realtime add table public.items_compra;
+
+-- ============================================================
+--  HISTORIAL DE COMPRAS  (fase 3)
+--  Cada vez que confirmás una compra se guarda un registro con
+--  qué llevaste ese día. La foto del ticket es opcional.
+-- ============================================================
+create table if not exists public.compras (
+  id          uuid primary key default gen_random_uuid(),
+  hogar_id    uuid not null references public.hogares(id) on delete cascade,
+  fecha       date not null default (now() at time zone 'America/Argentina/Cordoba')::date,
+  items       jsonb not null default '[]',   -- [{nombre, cantidad, unidad}]
+  cant_items  int not null default 0,
+  total       numeric,
+  nota        text,
+  foto_path   text,                          -- ruta en el bucket 'tickets'
+  creada_por  uuid not null default auth.uid() references auth.users(id) on delete set null,
+  created_at  timestamptz not null default now()
+);
+create index if not exists compras_hogar_idx on public.compras(hogar_id, fecha desc);
+
+alter table public.compras enable row level security;
+drop policy if exists compras_all on public.compras;
+create policy compras_all on public.compras
+  for all using (public.es_miembro(hogar_id)) with check (public.es_miembro(hogar_id));
+
+-- ---------- Bucket de fotos de tickets (privado) ----------
+insert into storage.buckets (id, name, public)
+values ('tickets', 'tickets', false)
+on conflict (id) do nothing;
+
+-- Solo los miembros del hogar pueden ver/subir/borrar las fotos de ese hogar.
+-- Las rutas son '<hogar_id>/<compra_id>.jpg'.
+drop policy if exists "tickets miembros lee" on storage.objects;
+create policy "tickets miembros lee" on storage.objects
+  for select using (
+    bucket_id = 'tickets'
+    and exists (
+      select 1 from public.miembros m
+      where m.user_id = auth.uid()
+        and m.hogar_id::text = (storage.foldername(name))[1]
+    )
+  );
+
+drop policy if exists "tickets miembros sube" on storage.objects;
+create policy "tickets miembros sube" on storage.objects
+  for insert with check (
+    bucket_id = 'tickets'
+    and exists (
+      select 1 from public.miembros m
+      where m.user_id = auth.uid()
+        and m.hogar_id::text = (storage.foldername(name))[1]
+    )
+  );
+
+drop policy if exists "tickets miembros actualiza" on storage.objects;
+create policy "tickets miembros actualiza" on storage.objects
+  for update using (
+    bucket_id = 'tickets'
+    and exists (
+      select 1 from public.miembros m
+      where m.user_id = auth.uid()
+        and m.hogar_id::text = (storage.foldername(name))[1]
+    )
+  );
+
+drop policy if exists "tickets miembros borra" on storage.objects;
+create policy "tickets miembros borra" on storage.objects
+  for delete using (
+    bucket_id = 'tickets'
+    and exists (
+      select 1 from public.miembros m
+      where m.user_id = auth.uid()
+        and m.hogar_id::text = (storage.foldername(name))[1]
+    )
+  );

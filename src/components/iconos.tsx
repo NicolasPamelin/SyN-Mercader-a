@@ -76,6 +76,20 @@ export const IconLapiz = (p: SVGProps<SVGSVGElement>) => (
   </svg>
 )
 
+export const IconCamara = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base(p)}>
+    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+    <circle cx="12" cy="13" r="4" />
+  </svg>
+)
+
+export const IconTicket = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base(p)}>
+    <path d="M5 3h14v18l-2.5-1.5L14 21l-2-1.5L10 21l-2.5-1.5L5 21z" />
+    <path d="M9 8h6M9 12h6" />
+  </svg>
+)
+
 export const IconLista = (p: SVGProps<SVGSVGElement>) => (
   <svg {...base(p)}>
     <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />

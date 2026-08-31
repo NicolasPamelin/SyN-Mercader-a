@@ -45,7 +45,7 @@ interface DespensaCtx {
   toggleCarrito: (item: ItemCompra) => Promise<void>
   cambiarCantidadItem: (id: string, cantidad: number) => Promise<void>
   quitarItem: (id: string) => Promise<void>
-  confirmarCompra: () => Promise<number>
+  confirmarCompra: () => Promise<{ count: number; compraId: string | null }>
   recargar: () => Promise<void>
 }
 
@@ -328,6 +328,30 @@ export function DespensaProvider({ children }: { children: ReactNode }) {
 
   const confirmarCompra = async () => {
     const comprados = lista.filter((x) => x.estado === 'en_carrito')
+    if (comprados.length === 0) return { count: 0, compraId: null }
+
+    const snapshot = comprados.map((item) => {
+      const p = item.producto_id
+        ? productos.find((x) => x.id === item.producto_id)
+        : null
+      return {
+        nombre: p?.nombre ?? item.nombre_libre ?? 'Item',
+        cantidad: item.cantidad,
+        unidad: p?.unidad ?? '',
+      }
+    })
+
+    // guarda la compra en el historial
+    const { data: compra } = await supabase
+      .from('compras')
+      .insert({
+        hogar_id: hid(),
+        items: snapshot,
+        cant_items: comprados.length,
+      })
+      .select('id')
+      .single()
+
     for (const item of comprados) {
       await supabase.from('items_compra').delete().eq('id', item.id)
       if (item.producto_id) {
@@ -340,7 +364,10 @@ export function DespensaProvider({ children }: { children: ReactNode }) {
       }
     }
     await refrescar()
-    return comprados.length
+    return {
+      count: comprados.length,
+      compraId: (compra as { id?: string } | null)?.id ?? null,
+    }
   }
 
   return (

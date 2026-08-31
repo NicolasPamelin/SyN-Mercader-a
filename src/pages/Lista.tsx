@@ -13,6 +13,7 @@ import {
 } from '../components/iconos'
 import { useToast } from '../components/ui/Toast'
 import { Segmented } from '../components/ui/Segmented'
+import { FotoTicketSheet } from '../components/FotoTicketSheet'
 import { listItem, spring, tap } from '../lib/ui'
 
 interface Fila {
@@ -24,6 +25,7 @@ interface Fila {
 
 export function Lista() {
   const {
+    hogar,
     productos,
     lista,
     agregarItemManual,
@@ -36,6 +38,9 @@ export function Lista() {
 
   const [modoSuper, setModoSuper] = useState(false)
   const [texto, setTexto] = useState('')
+  const [ticket, setTicket] = useState<{ id: string; count: number } | null>(
+    null,
+  )
 
   const prodPorId = useMemo(
     () => new Map(productos.map((p) => [p.id, p])),
@@ -93,15 +98,15 @@ export function Lista() {
   }
 
   const confirmar = async () => {
-    const n = await confirmarCompra()
+    const { count, compraId } = await confirmarCompra()
     tap(24)
-    toast(
-      n > 0
-        ? `Sumé ${n} ${n === 1 ? 'producto' : 'productos'} al stock`
-        : 'No marcaste nada en el carrito',
-      n > 0 ? 'ok' : 'info',
-    )
+    if (count === 0) {
+      toast('No marcaste nada en el carrito', 'info')
+      return
+    }
     setModoSuper(false)
+    if (compraId) setTicket({ id: compraId, count })
+    else toast(`Sumé ${count} al stock`, 'ok')
   }
 
   return (
@@ -245,6 +250,14 @@ export function Lista() {
           </motion.div>
         ) : null}
       </AnimatePresence>
+
+      <FotoTicketSheet
+        compraId={ticket?.id ?? null}
+        hogarId={hogar?.id ?? ''}
+        cantidad={ticket?.count ?? 0}
+        onCerrar={() => setTicket(null)}
+        onListo={() => toast('Compra guardada en el historial')}
+      />
     </div>
   )
 }

@@ -45,6 +45,7 @@ export interface ItemCompra {
   hogar_id: string
   producto_id: string | null
   nombre_libre: string | null
+  categoria: string | null
   cantidad: number
   estado: 'pendiente' | 'en_carrito'
   origen: 'auto' | 'manual'

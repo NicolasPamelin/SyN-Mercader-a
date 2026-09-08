@@ -40,6 +40,7 @@ interface DespensaCtx {
   agregarItemManual: (entrada: {
     productoId?: string
     nombreLibre?: string
+    categoria?: string
     cantidad: number
   }) => Promise<void>
   toggleCarrito: (item: ItemCompra) => Promise<void>
@@ -296,6 +297,7 @@ export function DespensaProvider({ children }: { children: ReactNode }) {
       await supabase.from('items_compra').insert({
         hogar_id: hid(),
         nombre_libre: entrada.nombreLibre,
+        categoria: entrada.categoria ?? null,
         cantidad: entrada.cantidad,
         origen: 'manual',
         estado: 'pendiente',

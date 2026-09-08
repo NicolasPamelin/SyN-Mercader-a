@@ -57,6 +57,7 @@ create table if not exists public.items_compra (
   hogar_id     uuid not null references public.hogares(id) on delete cascade,
   producto_id  uuid references public.productos(id) on delete cascade,
   nombre_libre text,                              -- para items que no están en el catálogo
+  categoria    text,                              -- sección elegida para items sueltos
   cantidad     numeric not null default 1 check (cantidad > 0),
   estado       text not null default 'pendiente' check (estado in ('pendiente','en_carrito')),
   origen       text not null default 'manual' check (origen in ('auto','manual')),
@@ -65,6 +66,9 @@ create table if not exists public.items_compra (
   unique (hogar_id, producto_id)
 );
 create index if not exists items_compra_hogar_idx on public.items_compra(hogar_id);
+
+-- Si ya tenías la tabla de antes:
+alter table public.items_compra add column if not exists categoria text;
 
 -- ============================================================
 --  updated_at automático en productos

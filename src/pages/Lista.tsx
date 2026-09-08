@@ -1,7 +1,12 @@
 import { useMemo, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useDespensa } from '../context/DespensaContext'
-import { formatCantidad, ordenCategoria } from '../lib/constants'
+import {
+  CATEGORIAS,
+  CATEGORIA_DEFAULT,
+  formatCantidad,
+  ordenCategoria,
+} from '../lib/constants'
 import type { ItemCompra } from '../lib/types'
 import {
   IconBasura,
@@ -41,6 +46,21 @@ export function Lista() {
   const [ticket, setTicket] = useState<{ id: string; count: number } | null>(
     null,
   )
+  const [catSel, setCatSel] = useState<string>(() => {
+    try {
+      return localStorage.getItem('syn.cat_lista') || CATEGORIA_DEFAULT
+    } catch {
+      return CATEGORIA_DEFAULT
+    }
+  })
+  const elegirCat = (c: string) => {
+    setCatSel(c)
+    try {
+      localStorage.setItem('syn.cat_lista', c)
+    } catch {
+      /* noop */
+    }
+  }
 
   const prodPorId = useMemo(
     () => new Map(productos.map((p) => [p.id, p])),
@@ -54,7 +74,7 @@ export function Lista() {
         return {
           item,
           nombre: p?.nombre ?? item.nombre_libre ?? 'Item',
-          categoria: p?.categoria ?? 'Almacén',
+          categoria: p?.categoria ?? item.categoria ?? 'Almacén',
           unidad: p?.unidad ?? '',
         }
       }),
@@ -92,7 +112,7 @@ export function Lista() {
     await agregarItemManual(
       match
         ? { productoId: match.id, cantidad: 1 }
-        : { nombreLibre: t, cantidad: 1 },
+        : { nombreLibre: t, cantidad: 1, categoria: catSel },
     )
     setTexto('')
   }
@@ -142,34 +162,52 @@ export function Lista() {
 
       <AnimatePresence mode="popLayout">
         {!modoSuper ? (
-          <motion.form
+          <motion.div
             key="alta"
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
-            onSubmit={agregar}
-            className="mb-4 flex gap-2"
+            className="mb-4"
           >
-            <input
-              value={texto}
-              onChange={(e) => setTexto(e.target.value)}
-              placeholder="Agregar algo a la lista…"
-              list="catalogo"
-              className="input"
-            />
-            <datalist id="catalogo">
-              {productos.map((p) => (
-                <option key={p.id} value={p.nombre} />
+            <form onSubmit={agregar} className="flex gap-2">
+              <input
+                value={texto}
+                onChange={(e) => setTexto(e.target.value)}
+                placeholder="Agregar algo a la lista…"
+                list="catalogo"
+                className="input"
+              />
+              <datalist id="catalogo">
+                {productos.map((p) => (
+                  <option key={p.id} value={p.nombre} />
+                ))}
+              </datalist>
+              <button
+                type="submit"
+                className="grid w-12 shrink-0 place-items-center rounded-xl bg-marca text-white shadow-soft"
+                aria-label="Agregar"
+              >
+                <IconMas width={20} height={20} />
+              </button>
+            </form>
+
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {CATEGORIAS.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => elegirCat(c)}
+                  className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                    catSel === c
+                      ? 'bg-marca text-white'
+                      : 'bg-surface-2 text-ink-soft'
+                  }`}
+                >
+                  {c}
+                </button>
               ))}
-            </datalist>
-            <button
-              type="submit"
-              className="grid w-12 shrink-0 place-items-center rounded-xl bg-marca text-white shadow-soft"
-              aria-label="Agregar"
-            >
-              <IconMas width={20} height={20} />
-            </button>
-          </motion.form>
+            </div>
+          </motion.div>
         ) : (
           <motion.div
             key="progreso"

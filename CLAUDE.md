@@ -68,6 +68,13 @@ App de stock de despensa + lista del super, compartida entre Sofi y Nico.
 - Para revisar visualmente sin sesión: `npm run dev` + screenshot headless a
   ancho grande (1200) — el headless viejo a 390 recorta y engaña.
 
+## Mantener Supabase activo
+
+Free pausa proyectos tras ~7 días sin actividad. `.github/workflows/keep-supabase-alive.yml`
+pinguea la API lunes y jueves (secrets `SUPABASE_URL` / `SUPABASE_ANON_KEY` en el
+repo de GitHub). Si algún día se pasa a plan Pro de Supabase, este workflow ya no
+hace falta pero no molesta dejarlo.
+
 ## Deploy
 
 - **En vivo:** https://syn-mercaderia.netlify.app (Netlify, team `nicolaspamelinvarela`,

@@ -71,9 +71,16 @@ App de stock de despensa + lista del super, compartida entre Sofi y Nico.
 ## Mantener Supabase activo
 
 Free pausa proyectos tras ~7 días sin actividad. `.github/workflows/keep-supabase-alive.yml`
-pinguea la API lunes y jueves (secrets `SUPABASE_URL` / `SUPABASE_ANON_KEY` en el
-repo de GitHub). Si algún día se pasa a plan Pro de Supabase, este workflow ya no
-hace falta pero no molesta dejarlo.
+pinguea la API lunes/miércoles/viernes (secrets `SUPABASE_URL` / `SUPABASE_ANON_KEY`
+en el repo de GitHub, `timeout-minutes: 3`). Si algún día se pasa a plan Pro de
+Supabase, este workflow ya no hace falta pero no molesta dejarlo.
+
+**Incidente 2026-10-05:** una corrida programada quedó "cancelled" sin ejecutar
+pasos (GitHub tardó 15 min en asignarle runner y la cortó) — hiccup de
+infraestructura de GitHub Actions, no algo roto en el workflow ni en Supabase
+(se confirmó pingueando directo que el proyecto seguía activo). Con el cron
+anterior (lun/jue) eso dejó pasar justo 7 días entre pings exitosos. Se pasó a
+lun/mié/vie para que perder una corrida no empuje el hueco a 7 días.
 
 ## Deploy
 

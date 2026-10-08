@@ -294,3 +294,20 @@ create policy "tickets miembros borra" on storage.objects
         and m.hogar_id::text = (storage.foldername(name))[1]
     )
   );
+
+-- ============================================================
+--  KEEP-ALIVE: una lectura con la anon key no cuenta como
+--  "actividad suficiente" para Supabase. Esta tabla de un solo
+--  registro recibe una escritura real desde el workflow de
+--  GitHub Actions (ver supabase/04-keepalive.sql para el detalle).
+-- ============================================================
+create table if not exists public._keepalive (
+  id        int primary key default 1,
+  pinged_at timestamptz not null default now()
+);
+insert into public._keepalive (id) values (1) on conflict (id) do nothing;
+
+alter table public._keepalive enable row level security;
+drop policy if exists keepalive_cualquiera on public._keepalive;
+create policy keepalive_cualquiera on public._keepalive
+  for all using (true) with check (true);

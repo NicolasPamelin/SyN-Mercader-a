@@ -1,7 +1,10 @@
 name: Mantener Supabase activo
 
-# Supabase Free pausa el proyecto después de ~7 días sin actividad en la API.
-# Esto hace una consulta mínima cada pocos días para que nunca llegue a eso.
+# Supabase Free pausa el proyecto después de ~7 días sin actividad.
+# Ojo: una LECTURA con la anon key no cuenta como actividad suficiente
+# (confirmado: el 25/09/2026 llegó el aviso de pausa con el ping de
+# lectura ya corriendo bien). El paso que de verdad cuenta es la
+# escritura en public._keepalive (supabase/04-keepalive.sql).
 
 on:
   schedule:
@@ -13,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3 # si GitHub no asigna runner rápido, cortar en vez de colgarse 15+ min
     steps:
-      - name: Ping a Supabase
+      - name: Lectura (diagnóstico, no alcanza sola)
         run: |
           code=$(curl -sS -o /tmp/resp.json -w "%{http_code}" \
             "${SUPABASE_URL}/rest/v1/hogares?select=id&limit=1" \
@@ -21,8 +24,24 @@ jobs:
             -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
           echo "HTTP $code"
           cat /tmp/resp.json
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
+      - name: Escritura real (esto es lo que cuenta como actividad)
+        run: |
+          now=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          code=$(curl -sS -o /tmp/resp2.json -w "%{http_code}" -X PATCH \
+            "${SUPABASE_URL}/rest/v1/_keepalive?id=eq.1" \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            -H "Content-Type: application/json" \
+            -H "Prefer: return=minimal" \
+            -d "{\"pinged_at\":\"${now}\"}")
+          echo "HTTP $code"
+          cat /tmp/resp2.json 2>/dev/null || true
           if [ "$code" -ge 400 ]; then
-            echo "::error::Supabase respondió $code, revisar."
+            echo "::error::Falló la escritura ($code). ¿Se corrió supabase/04-keepalive.sql en Supabase?"
             exit 1
           fi
         env:

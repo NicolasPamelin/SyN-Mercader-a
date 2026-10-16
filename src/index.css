@@ -115,6 +115,19 @@ textarea {
   padding-top: env(safe-area-inset-top);
 }
 
+/*
+ * Altura real de la barra inferior (nav), ya con el margen del "home
+ * indicator" de iOS incluido. iPhone reporta safe-area-inset-bottom
+ * (~34px); Android en general no. Cualquier elemento flotante que tenga
+ * que ir "arriba del nav" (como el botón de confirmar compra) o
+ * cualquier padding que tenga que dejarle lugar, usa esta misma
+ * variable — así quedan sincronizados en vez de con números fijos que
+ * solo daban bien en un celu y se tapaban en otro.
+ */
+:root {
+  --syn-nav-h: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+}
+
 @layer components {
   .input {
     width: 100%;

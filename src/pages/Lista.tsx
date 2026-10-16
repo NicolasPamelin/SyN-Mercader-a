@@ -264,6 +264,15 @@ export function Lista() {
               </ul>
             </section>
           ))}
+          {/* deja lugar para que el último item no quede tapado por el
+              botón flotante de abajo (el alto del nav varía según el
+              celu: en iPhone el "home indicator" lo hace más alto) */}
+          {modoSuper ? (
+            <div
+              aria-hidden
+              style={{ height: 'calc(var(--syn-nav-h) + 4.5rem)' }}
+            />
+          ) : null}
         </div>
       )}
 
@@ -274,7 +283,8 @@ export function Lista() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 24 }}
             transition={spring}
-            className="safe-bottom fixed inset-x-0 bottom-[68px] z-30 mx-auto max-w-md px-5"
+            style={{ bottom: 'calc(var(--syn-nav-h) + 0.5rem)' }}
+            className="fixed inset-x-0 z-30 mx-auto max-w-md px-5"
           >
             <button
               type="button"

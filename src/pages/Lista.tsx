@@ -83,13 +83,24 @@ export function Lista() {
 
   const grupos = useMemo(() => {
     const map = new Map<string, Fila[]>()
-    for (const f of [...filas].sort(
-      (a, b) =>
-        (a.item.estado === 'en_carrito' ? 1 : 0) -
-          (b.item.estado === 'en_carrito' ? 1 : 0) ||
+    for (const f of [...filas].sort((a, b) => {
+      // En modo super NO reordenamos por tildado: si el que acabás de
+      // marcar salta de posición mientras todavía estás tocando la
+      // pantalla, el dedo termina tildando el producto que quedó debajo
+      // (eso es lo que se siente como "se tildó solo"). Tachado en el
+      // lugar durante la compra; el salto al final de la lista queda
+      // para cuando estás planificando con calma.
+      if (!modoSuper) {
+        const porEstado =
+          (a.item.estado === 'en_carrito' ? 1 : 0) -
+          (b.item.estado === 'en_carrito' ? 1 : 0)
+        if (porEstado) return porEstado
+      }
+      return (
         ordenCategoria(a.categoria) - ordenCategoria(b.categoria) ||
-        a.nombre.localeCompare(b.nombre),
-    )) {
+        a.nombre.localeCompare(b.nombre)
+      )
+    })) {
       const arr = map.get(f.categoria) ?? []
       arr.push(f)
       map.set(f.categoria, arr)
@@ -97,7 +108,7 @@ export function Lista() {
     return [...map.entries()].sort(
       (a, b) => ordenCategoria(a[0]) - ordenCategoria(b[0]),
     )
-  }, [filas])
+  }, [filas, modoSuper])
 
   const total = filas.length
   const enCarrito = filas.filter((f) => f.item.estado === 'en_carrito').length

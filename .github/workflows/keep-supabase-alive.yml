@@ -1,14 +1,18 @@
 name: Mantener Supabase activo
 
-# Supabase Free pausa el proyecto después de ~7 días sin actividad.
-# Ojo: una LECTURA con la anon key no cuenta como actividad suficiente
-# (confirmado: el 25/09/2026 llegó el aviso de pausa con el ping de
-# lectura ya corriendo bien). El paso que de verdad cuenta es la
-# escritura en public._keepalive (supabase/04-keepalive.sql).
+# Supabase Free pausa el proyecto si no ve suficiente actividad en 7 días.
+# Dos vueltas de rosca ya dadas acá:
+#  - 25/09: el aviso llegó con un ping de solo LECTURA corriendo bien.
+#    Una lectura con la anon key no alcanza; hace falta una escritura.
+#  - 22/10: el aviso volvió a llegar con la escritura corriendo bien
+#    cada 2-3 días (lun/mié/vie). La doc oficial de Supabase dice que
+#    hace falta actividad "cada día" de la semana, no cada 2-3 días:
+#    https://supabase.com/docs/guides/platform/free-project-pausing
+#    -> se pasa a corrida diaria.
 
 on:
   schedule:
-    - cron: '0 12 * * 1,3,5' # lunes, miércoles y viernes 12:00 UTC (~9am Argentina)
+    - cron: '0 12 * * *' # todos los días, 12:00 UTC (~9am Argentina)
   workflow_dispatch: {} # botón "Run workflow" para probarlo a mano
 
 jobs:

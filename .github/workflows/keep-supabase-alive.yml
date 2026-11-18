@@ -1,7 +1,7 @@
 name: Mantener Supabase activo
 
 # Supabase Free pausa el proyecto si no ve suficiente actividad en 7 días.
-# Dos vueltas de rosca ya dadas acá:
+# Tres vueltas de rosca ya dadas acá:
 #  - 25/09: el aviso llegó con un ping de solo LECTURA corriendo bien.
 #    Una lectura con la anon key no alcanza; hace falta una escritura.
 #  - 22/10: el aviso volvió a llegar con la escritura corriendo bien
@@ -9,10 +9,20 @@ name: Mantener Supabase activo
 #    hace falta actividad "cada día" de la semana, no cada 2-3 días:
 #    https://supabase.com/docs/guides/platform/free-project-pausing
 #    -> se pasa a corrida diaria.
+#  - 18/11: el aviso volvió a llegar con la escritura diaria corriendo
+#    perfecta (27 días sin un solo hueco, verificado). Todo lo probado
+#    hasta ahora usaba la anon key sin login. Intento 4: hacer login
+#    real con un usuario de Auth antes de escribir, para que la
+#    actividad sea de una sesión autenticada (Auth + DB) y no solo
+#    tráfico anónimo repetitivo. Se pasa además a 2 corridas por día
+#    como margen extra. Esto es un experimento, no hay garantía de que
+#    cambie algo — si vuelve a fallar, no hay más parches razonables
+#    para el plan free; el fix real es Supabase Pro.
 
 on:
   schedule:
-    - cron: '0 12 * * *' # todos los días, 12:00 UTC (~9am Argentina)
+    - cron: '0 12 * * *' # 12:00 UTC (~9am Argentina)
+    - cron: '0 23 * * *' # 23:00 UTC (~8pm Argentina)
   workflow_dispatch: {} # botón "Run workflow" para probarlo a mano
 
 jobs:
@@ -20,25 +30,39 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3 # si GitHub no asigna runner rápido, cortar en vez de colgarse 15+ min
     steps:
-      - name: Lectura (diagnóstico, no alcanza sola)
+      - name: Login (actividad de Auth, no solo anon key)
+        id: login
         run: |
-          code=$(curl -sS -o /tmp/resp.json -w "%{http_code}" \
-            "${SUPABASE_URL}/rest/v1/hogares?select=id&limit=1" \
+          code=$(curl -sS -o /tmp/login.json -w "%{http_code}" -X POST \
+            "${SUPABASE_URL}/auth/v1/token?grant_type=password" \
             -H "apikey: ${SUPABASE_ANON_KEY}" \
-            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
+            -H "Content-Type: application/json" \
+            -d "{\"email\":\"${SUPABASE_KEEPALIVE_EMAIL}\",\"password\":\"${SUPABASE_KEEPALIVE_PASSWORD}\"}")
           echo "HTTP $code"
-          cat /tmp/resp.json
+          if [ "$code" -ge 400 ]; then
+            echo "::error::Falló el login ($code). ¿Existe el usuario keepalive en Auth y está confirmado?"
+            cat /tmp/login.json
+            exit 1
+          fi
+          token=$(grep -o '"access_token":"[^"]*"' /tmp/login.json | head -1 | cut -d'"' -f4)
+          if [ -z "$token" ]; then
+            echo "::error::Login OK pero no se pudo extraer el access_token."
+            exit 1
+          fi
+          echo "token=$token" >> "$GITHUB_OUTPUT"
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_KEEPALIVE_EMAIL: ${{ secrets.SUPABASE_KEEPALIVE_EMAIL }}
+          SUPABASE_KEEPALIVE_PASSWORD: ${{ secrets.SUPABASE_KEEPALIVE_PASSWORD }}
 
-      - name: Escritura real (esto es lo que cuenta como actividad)
+      - name: Escritura autenticada (esto es lo que cuenta como actividad)
         run: |
           now=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           code=$(curl -sS -o /tmp/resp2.json -w "%{http_code}" -X PATCH \
             "${SUPABASE_URL}/rest/v1/_keepalive?id=eq.1" \
             -H "apikey: ${SUPABASE_ANON_KEY}" \
-            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${AUTH_TOKEN}" \
             -H "Content-Type: application/json" \
             -H "Prefer: return=minimal" \
             -d "{\"pinged_at\":\"${now}\"}")
@@ -51,3 +75,4 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          AUTH_TOKEN: ${{ steps.login.outputs.token }}
